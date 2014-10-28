@@ -1,26 +1,84 @@
 <?php
 
-use Illuminate\Auth\UserTrait;
+use Zizaco\Confide\ConfideUser;
+use Zizaco\Confide\Confide;
+use Zizaco\Confide\ConfideEloquentRepository;
+use Zizaco\Entrust\HasRole;
+use Carbon\Carbon;
 use Illuminate\Auth\UserInterface;
-use Illuminate\Auth\Reminders\RemindableTrait;
 use Illuminate\Auth\Reminders\RemindableInterface;
 
-class User extends Eloquent implements UserInterface, RemindableInterface {
+class User extends ConfideUser implements UserInterface, RemindableInterface {
 
-	use UserTrait, RemindableTrait;
-
-	/**
-	 * The database table used by the model.
-	 *
-	 * @var string
-	 */
-	protected $table = 'users';
+	use HasRole;
 
 	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var array
+	 * Get user by username
+	 * @param  string $username Username
+	 * @return mixed
 	 */
-	protected $hidden = array('password', 'remember_token');
+	public function getUserByUserName($username)
+	{
+		return $this->where('username', '=', $username)->first();
+	}
 
+	/**
+	 * Get the date the user was created
+	 * 
+	 * @return [type] [description]
+	 */
+	public function joined()
+	{
+		return String::date(Carbon::createFromFormat('Y-m-n H:i:s', $this->created_at));
+	}
+
+	/**
+	 * Save roles input from multiselect
+	 * 
+	 * @return [type] [description]
+	 */
+	public function saveRoles($inputRoles)
+	{
+		if(!empty($inputRoles)) {
+			$this->roles()->sync($inputRoles);
+		} else {
+			$this->roles()->detach();
+		}
+	}
+
+	/**
+	 * Return user's current role ids only
+	 * 
+	 * @return array | boolean
+	 */
+	public function currentRoleIds()
+	{
+		$roles = $this->roles;
+		$roleIds = false;
+
+		if(!empty($roles)) {
+			$roleIds = array();
+
+			foreach($roles as &$role) {
+				$roleIds[] = $role->id;
+			}
+		}
+
+		return $roleIds;
+	}
+
+	public function checkAuthAndRedirect()
+	{
+
+	}
+
+	public function currentUser()
+	{
+
+	}
+
+	public function getReminderEmail()
+	{
+
+	}
 }
