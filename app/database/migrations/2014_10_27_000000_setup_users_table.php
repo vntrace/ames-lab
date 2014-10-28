@@ -2,26 +2,27 @@
 use Illuminate\Database\Migrations\Migration;
 
 /**
- * Created by PhpStorm.
- * User: thanhdc
- * Date: 10/27/14
- * Time: 8:07 AM
+ * Class CreateUsersTable
  */
-class CreateCategoriesTable extends Migration
+class SetupUsersTable extends Migration
 {
     /**
      * Run the migration
      */
     public function up()
     {
-        Schema::create('categories', function($table){
+        // Create the `users` table
+        Schema::create('users', function($table){
             $table->engine = 'InnoDB';
             $table->increments('id')->unsigned();
-            $table->mediumText('name');
+            $table->string('username', 128)->index();
+            $table->string('email', 128);
+            $table->string('display_name');
+            $table->string('password');
+            $table->string('confirm_code');
+            $table->tinyInteger('lock_flg')->default(0);
             $table->dateTime('created_date');
             $table->dateTime('updated_date');
-            $table->integer('created_by');
-            $table->integer('order')->default(999);
             $table->dateTime('deleted_at')->nullable();
         });
     }
@@ -31,6 +32,6 @@ class CreateCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::drop('categories');
+        Schema::drop('users');
     }
 }
